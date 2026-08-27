@@ -43,11 +43,13 @@ API specs use Playwright’s `request` fixture. `PropertiesClient` wraps CRUD ca
 
 ## Running Locally
 
-The PropFlow backend must be running on `http://localhost:8080` with PostgreSQL available.
+Do **not** run these tests against the development backend on port 8080 (`propflow`). That database is for the React UI.
+
+Start PropFlow with the `test` profile against `propflow_test` on port **8081**, then:
 
 ```bash
 npm ci
-npm run test:api
+BASE_URL=http://localhost:8081 npm run test:api
 ```
 
 `test:api` runs `playwright test --project=api` only (no browser install, no UI login setup).
@@ -56,12 +58,12 @@ npm run test:api
 
 On push and pull request to `main`, and via `workflow_dispatch`, GitHub Actions:
 
-1. Starts PostgreSQL 16 (`propflow` / `postgres`)
+1. Starts PostgreSQL 16 (`propflow_test` / `postgres`)
 2. Checks out the automation repository and the PropFlow backend into `backend/`
 3. Sets up Java 17 and Node.js 24
-4. Runs `npm ci` and `./mvnw spring-boot:run` with `POSTGRES_PASSWORD=postgres`
-5. Waits until `GET http://localhost:8080/api/properties` returns 200
-6. Runs `npx playwright test --project=api` with `BASE_URL=http://localhost:8080` and `CI=true`
+4. Runs `npm ci` and `./mvnw spring-boot:run` with `SPRING_PROFILES_ACTIVE=test` and `POSTGRES_PASSWORD=postgres`
+5. Waits until `GET http://localhost:8081/api/properties` returns 200
+6. Runs `npx playwright test --project=api` with `BASE_URL=http://localhost:8081` and `CI=true`
 7. Uploads `playwright-report/` as an artifact (`if: always()`)
 
 Workflow: [.github/workflows/api-tests.yml](.github/workflows/api-tests.yml)

@@ -15,13 +15,13 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_DB: propflow
+          POSTGRES_DB: propflow_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d propflow"
+          --health-cmd "pg_isready -U postgres -d propflow_test"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -56,6 +56,7 @@ jobs:
       - name: Start PropFlow
         working-directory: backend
         env:
+          SPRING_PROFILES_ACTIVE: test
           POSTGRES_PASSWORD: postgres
         run: |
           chmod +x mvnw
@@ -64,14 +65,14 @@ jobs:
       - name: Wait until the API is ready
         timeout-minutes: 10
         run: |
-          until curl -sf http://localhost:8080/api/properties >/dev/null; do
-            echo "Waiting for http://localhost:8080/api/properties ..."
+          until curl -sf http://localhost:8081/api/properties >/dev/null; do
+            echo "Waiting for http://localhost:8081/api/properties ..."
             sleep 3
           done
 
       - name: Run Playwright API tests
         env:
-          BASE_URL: http://localhost:8080
+          BASE_URL: http://localhost:8081
           CI: true
         run: npx playwright test --project=api
 
