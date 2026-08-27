@@ -5,6 +5,7 @@
   "description": "Playwright E2E framework with TypeScript, POM, fixtures, and API authentication",
   "scripts": {
     "test": "playwright test",
+    "test:api": "playwright test --project=api",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
