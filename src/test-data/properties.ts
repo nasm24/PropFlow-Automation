@@ -51,3 +51,19 @@ export function invalidProperty(): InvalidPropertyWrite {
     totalUnits: 0,
   };
 }
+
+export type InvalidFieldCase = {
+  field: keyof InvalidPropertyWrite;
+  value: string | number | null;
+};
+
+export const invalidFieldCases: InvalidFieldCase[] = [
+  { field: "name", value: "" },
+  { field: "address", value: "" },
+  { field: "city", value: "" },
+  { field: "state", value: "" },
+  { field: "zipCode", value: "" },
+  { field: "propertyType", value: null },
+  { field: "totalUnits", value: 0 },
+];
+

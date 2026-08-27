@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { PropertiesClient } from "../../src/api/clients/properties.client";
 import {
+  invalidFieldCases,
   invalidProperty,
   MISSING_PROPERTY_ID,
   uniqueProperty,
@@ -133,4 +134,24 @@ test.describe("Properties API", () => {
     const body = await response.json();
     expect(body.status).toBe(404);
   });
+
+  for (const { field, value } of invalidFieldCases) {
+    test(`POST /api/properties rejects invalid ${field}`, async ({ request }) => {
+      const propertiesApi = new PropertiesClient(request);
+      const payload = {
+        ...validProperty(),
+        [field]: value,
+      };
+      const response = await propertiesApi.create(payload);
+
+      expect(response.status()).toBe(400);
+
+      const body = await response.json();
+      expect(body).toHaveProperty("fieldErrors");
+      expect(Array.isArray(body.fieldErrors)).toBe(true);
+      expect(
+        body.fieldErrors.some((error: { field: string }) => error.field === field),
+      ).toBe(true);
+    });
+  }
 });
