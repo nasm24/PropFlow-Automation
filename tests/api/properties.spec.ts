@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { expectValidProperty } from "../../src/api/assertions/property.contract";
 import { PropertiesClient } from "../../src/api/clients/properties.client";
 import {
   invalidFieldCases,
@@ -30,6 +31,7 @@ test.describe("Properties API", () => {
     expect(createResponse.status()).toBe(201);
 
     const createdProperty = await createResponse.json();
+    expectValidProperty(createdProperty);
 
     expect(createdProperty.id).toBeDefined();
     expect(createdProperty.name).toBe(property.name);
@@ -43,6 +45,7 @@ test.describe("Properties API", () => {
     expect(getResponse.status()).toBe(200);
 
     const retrievedProperty = await getResponse.json();
+    expectValidProperty(retrievedProperty);
 
     expect(retrievedProperty.id).toBe(propertyId);
     expect(retrievedProperty.name).toBe(property.name);
@@ -62,6 +65,7 @@ test.describe("Properties API", () => {
     expect(createResponse.status()).toBe(201);
 
     const createdProperty = await createResponse.json();
+    expectValidProperty(createdProperty);
     const propertyId = createdProperty.id as string | number;
     expect(propertyId).toBeDefined();
 
@@ -70,11 +74,14 @@ test.describe("Properties API", () => {
       totalUnits: 50,
     });
     expect(updateResponse.status()).toBe(200);
+    const updatedFromPut = await updateResponse.json();
+    expectValidProperty(updatedFromPut);
 
     const getResponse = await propertiesApi.getById(propertyId);
     expect(getResponse.status()).toBe(200);
 
     const updatedProperty = await getResponse.json();
+    expectValidProperty(updatedProperty);
     expect(updatedProperty.id).toBe(propertyId);
     expect(updatedProperty.name).toBe(property.name);
     expect(updatedProperty.address).toBe(property.address);
