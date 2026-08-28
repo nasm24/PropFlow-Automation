@@ -25,77 +25,93 @@ test.describe("Properties API", () => {
   test("POST /api/properties should create a property", async ({ request }) => {
     const propertiesApi = new PropertiesClient(request);
     const property = validProperty();
+    let propertyId: number | undefined;
 
-    const createResponse = await propertiesApi.create(property);
+    try {
+      const createResponse = await propertiesApi.create(property);
 
-    expect(createResponse.status()).toBe(201);
+      expect(createResponse.status()).toBe(201);
 
-    const createdProperty = await createResponse.json();
-    expectValidProperty(createdProperty);
+      const createdProperty = await createResponse.json();
+      propertyId = createdProperty.id;
 
-    expect(createdProperty.id).toBeDefined();
-    expect(createdProperty.name).toBe(property.name);
-    expect(createdProperty.city).toBe(property.city);
-    expect(createdProperty.totalUnits).toBe(property.totalUnits);
+      expectValidProperty(createdProperty);
 
-    const propertyId = createdProperty.id;
+      expect(createdProperty.id).toBeDefined();
+      expect(createdProperty.name).toBe(property.name);
+      expect(createdProperty.city).toBe(property.city);
+      expect(createdProperty.totalUnits).toBe(property.totalUnits);
 
-    const getResponse = await propertiesApi.getById(propertyId);
+      const getResponse = await propertiesApi.getById(propertyId);
 
-    expect(getResponse.status()).toBe(200);
+      expect(getResponse.status()).toBe(200);
 
-    const retrievedProperty = await getResponse.json();
-    expectValidProperty(retrievedProperty);
+      const retrievedProperty = await getResponse.json();
+      expectValidProperty(retrievedProperty);
 
-    expect(retrievedProperty.id).toBe(propertyId);
-    expect(retrievedProperty.name).toBe(property.name);
-    expect(retrievedProperty.address).toBe(property.address);
-    expect(retrievedProperty.city).toBe(property.city);
-    expect(retrievedProperty.state).toBe(property.state);
-    expect(retrievedProperty.zipCode).toBe(property.zipCode);
-    expect(retrievedProperty.propertyType).toBe(property.propertyType);
-    expect(retrievedProperty.totalUnits).toBe(property.totalUnits);
+      expect(retrievedProperty.id).toBe(propertyId);
+      expect(retrievedProperty.name).toBe(property.name);
+      expect(retrievedProperty.address).toBe(property.address);
+      expect(retrievedProperty.city).toBe(property.city);
+      expect(retrievedProperty.state).toBe(property.state);
+      expect(retrievedProperty.zipCode).toBe(property.zipCode);
+      expect(retrievedProperty.propertyType).toBe(property.propertyType);
+      expect(retrievedProperty.totalUnits).toBe(property.totalUnits);
+    } finally {
+      if (propertyId !== undefined) {
+        await propertiesApi.delete(propertyId);
+      }
+    }
   });
 
   test("Property CRUD lifecycle", async ({ request }) => {
     const propertiesApi = new PropertiesClient(request);
     const property = uniqueProperty();
+    let propertyId: number | undefined;
+    let deleted = false;
 
-    const createResponse = await propertiesApi.create(property);
-    expect(createResponse.status()).toBe(201);
+    try {
+      const createResponse = await propertiesApi.create(property);
+      expect(createResponse.status()).toBe(201);
 
-    const createdProperty = await createResponse.json();
-    expectValidProperty(createdProperty);
-    const propertyId = createdProperty.id as string | number;
-    expect(propertyId).toBeDefined();
+      const createdProperty = await createResponse.json();
+      propertyId = createdProperty.id;
+      expectValidProperty(createdProperty);
+      expect(propertyId).toBeDefined();
 
-    const updateResponse = await propertiesApi.update(propertyId, {
-      ...property,
-      totalUnits: 50,
-    });
-    expect(updateResponse.status()).toBe(200);
-    const updatedFromPut = await updateResponse.json();
-    expectValidProperty(updatedFromPut);
+      const updateResponse = await propertiesApi.update(propertyId, {
+        ...property,
+        totalUnits: 50,
+      });
+      expect(updateResponse.status()).toBe(200);
+      const updatedFromPut = await updateResponse.json();
+      expectValidProperty(updatedFromPut);
 
-    const getResponse = await propertiesApi.getById(propertyId);
-    expect(getResponse.status()).toBe(200);
+      const getResponse = await propertiesApi.getById(propertyId);
+      expect(getResponse.status()).toBe(200);
 
-    const updatedProperty = await getResponse.json();
-    expectValidProperty(updatedProperty);
-    expect(updatedProperty.id).toBe(propertyId);
-    expect(updatedProperty.name).toBe(property.name);
-    expect(updatedProperty.address).toBe(property.address);
-    expect(updatedProperty.city).toBe(property.city);
-    expect(updatedProperty.state).toBe(property.state);
-    expect(updatedProperty.zipCode).toBe(property.zipCode);
-    expect(updatedProperty.propertyType).toBe(property.propertyType);
-    expect(updatedProperty.totalUnits).toBe(50);
+      const updatedProperty = await getResponse.json();
+      expectValidProperty(updatedProperty);
+      expect(updatedProperty.id).toBe(propertyId);
+      expect(updatedProperty.name).toBe(property.name);
+      expect(updatedProperty.address).toBe(property.address);
+      expect(updatedProperty.city).toBe(property.city);
+      expect(updatedProperty.state).toBe(property.state);
+      expect(updatedProperty.zipCode).toBe(property.zipCode);
+      expect(updatedProperty.propertyType).toBe(property.propertyType);
+      expect(updatedProperty.totalUnits).toBe(50);
 
-    const deleteResponse = await propertiesApi.delete(propertyId);
-    expect(deleteResponse.status()).toBe(204);
+      const deleteResponse = await propertiesApi.delete(propertyId);
+      expect(deleteResponse.status()).toBe(204);
+      deleted = true;
 
-    const missingResponse = await propertiesApi.getById(propertyId);
-    expect(missingResponse.status()).toBe(404);
+      const missingResponse = await propertiesApi.getById(propertyId);
+      expect(missingResponse.status()).toBe(404);
+    } finally {
+      if (propertyId !== undefined && !deleted) {
+        await propertiesApi.delete(propertyId);
+      }
+    }
   });
 
   test("POST /api/properties with invalid payload should return 400", async ({ request }) => {

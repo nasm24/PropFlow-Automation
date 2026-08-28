@@ -45,17 +45,24 @@ test.describe("Properties page", () => {
     await propertiesPage.submitCreate();
 
     const row = propertiesPage.rowByName(property.name);
-    await expect(row).toBeVisible();
 
-    await propertiesPage.editProperty(property.name);
-    await propertiesPage.fillTotalUnits(50);
-    await propertiesPage.submitSave();
+    try {
+      await expect(row).toBeVisible();
 
-    await expect(row).toBeVisible();
-    await expect(row.getByRole("cell", { name: "50", exact: true })).toBeVisible();
+      await propertiesPage.editProperty(property.name);
+      await propertiesPage.fillTotalUnits(50);
+      await propertiesPage.submitSave();
 
-    await propertiesPage.deleteProperty(property.name);
-    await expect(row).toHaveCount(0);
+      await expect(row).toBeVisible();
+      await expect(row.getByRole("cell", { name: "50", exact: true })).toBeVisible();
+
+      await propertiesPage.deleteProperty(property.name);
+      await expect(row).toHaveCount(0);
+    } finally {
+      if ((await row.count()) > 0) {
+        await propertiesPage.deleteProperty(property.name);
+      }
+    }
   });
 
   test("Delete property", async ({ page }) => {
@@ -68,9 +75,16 @@ test.describe("Properties page", () => {
     await propertiesPage.submitCreate();
 
     const row = propertiesPage.rowByName(property.name);
-    await expect(row).toBeVisible();
 
-    await propertiesPage.deleteProperty(property.name);
-    await expect(row).toHaveCount(0);
+    try {
+      await expect(row).toBeVisible();
+
+      await propertiesPage.deleteProperty(property.name);
+      await expect(row).toHaveCount(0);
+    } finally {
+      if ((await row.count()) > 0) {
+        await propertiesPage.deleteProperty(property.name);
+      }
+    }
   });
 });
