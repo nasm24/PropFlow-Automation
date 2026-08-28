@@ -49,9 +49,19 @@ jobs:
         with:
           node-version: "24"
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            backend/frontend/package-lock.json
 
-      - name: Install npm dependencies
+      - name: Install automation npm dependencies
         run: npm ci
+
+      - name: Install frontend npm dependencies
+        working-directory: backend/frontend
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
 
       - name: Start PropFlow
         working-directory: backend
@@ -70,11 +80,30 @@ jobs:
             sleep 3
           done
 
+      - name: Start Vite frontend
+        working-directory: backend/frontend
+        env:
+          VITE_API_BASE_URL: http://localhost:8081
+        run: npm run dev -- --host 0.0.0.0 --port 5173 &
+
+      - name: Wait until the frontend is ready
+        timeout-minutes: 5
+        run: |
+          until curl -sf http://localhost:5173/ >/dev/null; do
+            echo "Waiting for http://localhost:5173/ ..."
+            sleep 3
+          done
+
       - name: Run Playwright API tests
         env:
           BASE_URL: http://localhost:8081
           CI: true
-        run: npx playwright test --project=api
+        run: npm run test:api
+
+      - name: Run Playwright UI tests
+        env:
+          CI: true
+        run: npm run test:ui
 
       - name: Upload Playwright HTML report
         if: always()
