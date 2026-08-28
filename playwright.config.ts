@@ -41,6 +41,7 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         baseURL: "http://localhost:5173",
+        trace: "retain-on-failure",
       },
     },
 
