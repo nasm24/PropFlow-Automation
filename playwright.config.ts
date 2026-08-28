@@ -36,9 +36,18 @@ export default defineConfig({
     },
 
     {
+      name: "ui",
+      testMatch: /ui\/.*\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: "http://localhost:5173",
+      },
+    },
+
+    {
       name: "chromium",
       dependencies: ["setup"],
-      testIgnore: /.*\.setup\.ts/,
+      testIgnore: /.*\.setup\.ts|api\/.*\.spec\.ts|ui\/.*\.spec\.ts/,
       use: {
         ...devices["Desktop Chrome"],
         storageState: USER_STORAGE_STATE,

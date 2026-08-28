@@ -14,6 +14,20 @@ export function validProperty(): PropertyWrite {
   };
 }
 
+export function uniqueUiProperty(overrides?: Partial<PropertyWrite>): PropertyWrite {
+  const suffix = Date.now();
+  return {
+    name: `UI Property ${suffix}`,
+    address: `${suffix} UI Street`,
+    city: "Austin",
+    state: "TX",
+    zipCode: "78701",
+    propertyType: "HOUSE",
+    totalUnits: 25,
+    ...overrides,
+  };
+}
+
 export function uniqueProperty(overrides?: Partial<PropertyWrite>): PropertyWrite {
   const suffix = Date.now();
   return {
