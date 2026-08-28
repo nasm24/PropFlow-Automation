@@ -5,7 +5,7 @@ import { USER_STORAGE_STATE } from "./src/auth/storage-paths";
 
 dotenv.config({ path: path.resolve(__dirname, ".env") });
 
-const baseURL = process.env.BASE_URL ?? "http://localhost:8080";
+const baseURL = process.env.BASE_URL ?? "http://localhost:8081";
 
 export default defineConfig({
   testDir: "./tests",

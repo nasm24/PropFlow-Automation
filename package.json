@@ -2,9 +2,9 @@
   "name": "propflow-automation",
   "version": "0.1.0",
   "private": true,
-  "description": "Playwright E2E framework with TypeScript, POM, fixtures, and API authentication",
+  "description": "Playwright + TypeScript API and UI automation for PropFlow",
   "scripts": {
-    "test": "playwright test",
+    "test": "playwright test --project=api --project=ui",
     "test:api": "playwright test --project=api",
     "test:ui": "playwright test --project=ui",
     "test:headed": "playwright test --headed",
