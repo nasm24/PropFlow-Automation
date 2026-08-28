@@ -20,6 +20,10 @@ test.describe("Properties API", () => {
     const properties = await response.json();
 
     expect(Array.isArray(properties)).toBe(true);
+
+    for (const property of properties) {
+      expectValidProperty(property);
+    }
   });
 
   test("POST /api/properties should create a property", async ({ request }) => {
